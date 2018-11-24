@@ -3,17 +3,16 @@ import torch.utils.data as data
 from scipy.misc import imread
 from PIL import Image
 import numpy as np
-import os
+import cv2
 import xml.etree.ElementTree as ET
 from torchvision import transforms
 import matplotlib.pyplot as plt
 
 
 class Voc2012(data.Dataset):
-    def __init__(self, data_path, trainval="train_aug", transform=None, mask_transform=None):
+    def __init__(self, data_path, trainval="train_aug", transform=None):
         self.data_path = data_path
         self.transform = transform
-        self.mask_transform = mask_transform
         self.trainval = trainval
 
         self.__init_classes()
@@ -21,18 +20,17 @@ class Voc2012(data.Dataset):
 
     def __getitem__(self, index):
         x = imread(self.data_path + '/JPEGImages/' + self.names[index] + '.jpg', mode='RGB')
-        x = Image.fromarray(x)
+        x = Image.fromarray(x)  # PIL
         x_mask = imread(self.data_path + '/SegmentationClassAug/' + self.names[index] + '.png', mode='L')
-        x_mask = Image.fromarray(x_mask)
-
-        if self.transform is not None:
-            x = self.transform(x)
-        if self.mask_transform is not None:
-            x_mask = self.mask_transform(x_mask)
-            x_mask = torch.from_numpy(self.palette[np.array(x_mask)]).long()  # 21 classes
+        x_mask = self.palette[np.array(x_mask)].astype(np.int32)  # 21 classes
+        x_mask = Image.fromarray(x_mask)  # PIL
         y = self.labels[self.names[index]]
-        y = torch.from_numpy(y)  # 20 classes
 
+        sample = {'image': x, 'label': x_mask}
+        if self.transform is not None:
+            sample = self.transform(sample)
+        x, x_mask = sample['image'], sample['label']
+        y = torch.from_numpy(y)  # 20 classes
         return x, y, x_mask
 
     def __len__(self):

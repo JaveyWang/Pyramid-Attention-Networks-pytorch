@@ -27,7 +27,6 @@ class ResNet50(nn.Module):
         x = self.model.conv1(x)
         x = self.model.bn1(x)
         x = self.model.relu(x)
-        feature_map.append(x.detach())
         x = self.model.maxpool(x)
 
         for i, block in enumerate(self.blocks):
@@ -201,7 +200,6 @@ class PAN(nn.Module):
         channels_blocks = []
         for i, block in enumerate(blocks):
             channels_blocks.append(list(list(block.children())[2].children())[4].weight.shape[0])
-        channels_blocks.append(64)  # last conv channel.
 
         self.fpa = FPA(channels=channels_blocks[0])
         # channels_high = channels_blocks[0]
@@ -211,8 +209,7 @@ class PAN(nn.Module):
         self.gau_block1 = GAU(channels_blocks[0], channels_blocks[1], upsample=False)
         self.gau_block2 = GAU(channels_blocks[1], channels_blocks[2])
         self.gau_block3 = GAU(channels_blocks[2], channels_blocks[3])
-        self.gau_block4 = GAU(channels_blocks[3], channels_blocks[4])
-        self.gau = [self.gau_block1, self.gau_block2, self.gau_block3, self.gau_block4]
+        self.gau = [self.gau_block1, self.gau_block2, self.gau_block3]
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, fms=[]):
