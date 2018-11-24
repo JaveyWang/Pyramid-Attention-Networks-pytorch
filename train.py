@@ -29,7 +29,7 @@ parser.add_argument('--beta', type=float, default=1,
 
 args = parser.parse_args()
 
-experiment_name = 'batch_size{:}a{:}b{:}_deeplabv3_cls_nodetach'.format(args.batch_size, args.alpha, args.beta)
+experiment_name = 'batch_size{:}a{:}b{:}_deeplabv3_cls_detach_div2_debug'.format(args.batch_size, args.alpha, args.beta)
 path_log = Path('./log/' + experiment_name + '.log')
 try:
     if path_log.exists():
@@ -97,11 +97,7 @@ def train(epoch, optimizer, data_loader):
     for batch_idx, (imgs, cls_labels, mask_labels) in enumerate(data_loader):
         imgs, cls_labels, mask_labels = imgs.to(device), cls_labels.to(device), mask_labels.to(device)
         fms_blob, z = convnet(imgs)
-        if epoch == 0:
-            out_cls = classifier(z.detach())
-            fms_blob = [fms.detach() for fms in fms_blob]
-        else:
-            out_cls = classifier(z)
+        out_cls = classifier(z.detach())
 
         out_ss = pan(fms_blob[::-1])
         mask_pred = mask_classifier(out_ss)

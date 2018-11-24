@@ -30,21 +30,9 @@ class ResNet50(nn.Module):
         feature_map.append(x.detach())
         x = self.model.maxpool(x)
 
-        # x = self.relu(self.bn1(self.conv1(x)))
-        # feature_map.append(x.detach())
-        # x = self.model.maxpool(x)
-        #
-        # x = self.relu(self.bn2(self.conv2(x)))
-        # feature_map.append(x.detach())
-        # x = self.model.maxpool(x)
-
         for i, block in enumerate(self.blocks):
             x = block(x)
-            feature_map.append(x)
-            # if i == 3:
-            #     feature_map.append(x)
-            # else:
-            #     feature_map.append(x.detach())
+            feature_map.append(x.detach())
 
         out = nn.AvgPool2d(x.shape[2:])(x).view(x.shape[0], -1)
 
