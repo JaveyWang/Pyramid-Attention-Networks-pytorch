@@ -32,8 +32,8 @@ def get_each_cls_iu(pred, gt):
     :return: i_count, u_count. numpy array: [21]
     """
     assert (pred.shape == gt.shape), "pred shape: {:}, ground truth shape: {:}".format(pred.shape, gt.shape)
-    gt = gt.astype(np.float32)
-    pred = pred.astype(np.float32)
+    gt = gt.astype(np.int32)
+    pred = pred.astype(np.int32)
 
     max_label = 20  # labels from 0,1, ... 20(for VOC)
     i_count = np.zeros((max_label + 1,))

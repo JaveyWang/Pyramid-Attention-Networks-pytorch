@@ -117,6 +117,7 @@ class Normalize_cityscapes(object):
         return {'image': img,
                 'label': mask}
 
+
 class ToTensor(object):
     """Convert ndarrays in sample to Tensors."""
 
@@ -242,8 +243,10 @@ class RandomSized(object):
         mask = sample['label']
         assert img.size == mask.size
 
-        w = int(random.uniform(0.8, 2.5) * img.size[0])
-        h = int(random.uniform(0.8, 2.5) * img.size[1])
+        w = int(random.uniform(0.5, 2) * img.size[0])
+        h = int(random.uniform(0.5, 2) * img.size[1])
+        # w = img.size[0]
+        # h = img.size[1]
 
         img, mask = img.resize((w, h), Image.BILINEAR), mask.resize((w, h), Image.NEAREST)
         sample = {'image': img, 'label': mask}

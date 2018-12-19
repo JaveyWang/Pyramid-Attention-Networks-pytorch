@@ -1,9 +1,5 @@
-import torch
 import torch.nn as nn
 import resnet
-from torchvision import models
-from torch.autograd import Variable
-import torch.nn.functional as F
 
 class ResNet50(nn.Module):
     def __init__(self, pretrained=True):
@@ -13,14 +9,9 @@ class ResNet50(nn.Module):
         self.relu = self.model.relu  # Place a hook
 
         layers_cfg = [4, 5, 6, 7]
-        # bottlenect_cfg = [3, 4, 6, 3]
         self.blocks = []
-        # for i, num_this_layer in enumerate(layers_cfg):
-        #     for num_this_block in range(bottlenect_cfg[i]):
-        #         self.blocks.append(list(list(self.model.children())[num_this_layer].children())[num_this_block])
         for i, num_this_layer in enumerate(layers_cfg):
             self.blocks.append(list(self.model.children())[num_this_layer])
-        del(self.model.fc)
 
     def forward(self, x):
         feature_map = []
@@ -31,7 +22,7 @@ class ResNet50(nn.Module):
 
         for i, block in enumerate(self.blocks):
             x = block(x)
-            feature_map.append(x.detach())
+            feature_map.append(x)
 
         out = nn.AvgPool2d(x.shape[2:])(x).view(x.shape[0], -1)
 
@@ -210,6 +201,7 @@ class PAN(nn.Module):
         self.gau_block2 = GAU(channels_blocks[1], channels_blocks[2])
         self.gau_block3 = GAU(channels_blocks[2], channels_blocks[3])
         self.gau = [self.gau_block1, self.gau_block2, self.gau_block3]
+
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, fms=[]):
